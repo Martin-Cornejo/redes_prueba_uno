@@ -1,0 +1,6 @@
+Nombre: Router_2
+Tipo: Router
+IP: 100.100.0.1
+Ubicación: Rack de telecomunicaciones
+Fecha de Registro: 2025-04-21 23:19:54
+----------------------------------------

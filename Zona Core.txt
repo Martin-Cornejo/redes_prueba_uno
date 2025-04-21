@@ -1,0 +1,9 @@
+
+-----------------------------
+Dispositivo: Router
+Nombre: R1
+IP: 192.168.0.1
+VLAN(s): 1, 2, 3
+Servicios: ENRUTAMIENTO
+Capa: DISTRIBUCION
+-----------------------------
