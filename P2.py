@@ -1,5 +1,4 @@
 #comentario prueba edtar
-#comentario 2 prueba
 
 import os
 import re
