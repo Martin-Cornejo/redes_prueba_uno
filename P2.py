@@ -3,8 +3,39 @@
 import os
 import re
 import ipaddress
+import csv
+from datetime import datetime
 
-# ASCII art
+# registro de uso / historial ＞﹏＜
+ARCHIVO_REGISTRO = "registros_red.csv"
+
+def iniciar_registro():
+    #se Crea el archivo de registro si es que no llega a existie
+    if not os.path.exists(ARCHIVO_REGISTRO):
+        with open(ARCHIVO_REGISTRO, mode='w', newline='', encoding='utf-8') as archivo:
+            escritor = csv.writer(archivo)
+            escritor.writerow(["Fecha", "Hora", "Usuario", "Acción", "Detalles"])
+
+def registrar_evento(usuario, accion, detalles=""):
+    """Guarda un evento en el registro"""
+    try:
+        with open(ARCHIVO_REGISTRO, mode='a', newline='', encoding='utf-8') as archivo:
+            escritor = csv.writer(archivo)
+            escritor.writerow([
+                datetime.now().strftime("%d-%m-%Y"),#formatode la fecha
+                datetime.now().strftime("%H:%M:%S"),#formato de la hora
+                usuario,
+                accion,
+                str(detalles)
+            ])
+    except Exception as e:
+        print(f"⚠️ Error en registro: {e}")
+
+# aqui se inicia el registro
+iniciar_registro()
+# ================================================================
+
+# ASCII art para una presentacion mas fixita
 print("""
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~ ____  _____ ____  _____ ____          ___     __ __ ~
@@ -17,9 +48,10 @@ print("""
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """)
 
-# Sesión predefinida
+# Sesión predefinida 
 def sesion():
     usuarios = {
+        #orden es "usuario":"contra"
         "admin": "admin",
         "eloy": "eloy",
         "davor": "davor",
@@ -33,11 +65,14 @@ def sesion():
             contrasena = input("Escriba la contraseña: ").strip()
             if contrasena == usuarios[usuario]:
                 print("✅ Bienvenido " + usuario)
-                break
+                registrar_evento(usuario, "INICIO_SESION_EXITOSO")
+                return usuario
             else:
                 print("❌ Contraseña incorrecta")
+                registrar_evento(usuario, "INTENTO_FALLIDO", "Contraseña incorrecta")
         else:
             print(f"❌ Usuario incorrecto: {usuario}")
+            registrar_evento("DESCONOCIDO", "INTENTO_USUARIO", f"Usuario no existe: {usuario}")
 
 # Validación de IP
 def validar_ip(ip):
@@ -46,7 +81,7 @@ def validar_ip(ip):
                         r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
                         r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
     return patron.match(ip)
-
+# yo kcho que esta wa hay que borrarla , puro cacho
 # Comprobar si IP está en rango privado válido
 def ip_en_rango(ip):
     rangos_validos = [
@@ -70,86 +105,114 @@ def mostrar_menu():
     print("5. Salir")
 
 # Ver dispositivos por campus
-def ver_dispositivos(campus):
+def ver_dispositivos(campus, usuario_actual):
     os.system("cls" if os.name == "nt" else "clear")
     for i, c in enumerate(campus):
         print(f"{i+1}. {c}")
-    opcion = int(input("\nSeleccione un campus: ")) - 1
-    if 0 <= opcion < len(campus):
-        try:
-            with open(f"{campus[opcion]}.txt", "r") as archivo:
-                print("\n--- Dispositivos Registrados ---")
-                print(archivo.read())
-        except FileNotFoundError:
-            print("⚠️ No hay dispositivos registrados aún.")
+    try:
+        opcion = int(input("\nSeleccione un campus: ")) - 1
+        if 0 <= opcion < len(campus):
+            try:
+                with open(f"{campus[opcion]}.txt", "r") as archivo:
+                    print("\n--- Dispositivos Registrados ---")
+                    print(archivo.read())
+                    registrar_evento(usuario_actual, "VER_DISPOSITIVOS", f"Campus: {campus[opcion]}")
+            except FileNotFoundError:
+                print("⚠️ No hay dispositivos registrados aún.")
+                registrar_evento(usuario_actual, "VER_DISPOSITIVOS", "Sin dispositivos")
+        else:
+            print("❌ Opción inválida")
+    except ValueError:
+        print("❌ Ingrese un número válido")
 
-# Ver lista de campus
-def ver_campus(campus):
+# lista de los campus 
+def ver_campus(campus, usuario_actual):
     print("\n--- Lista de Campus ---")
     for i, c in enumerate(campus):
         print(f"{i+1}. {c}")
+    registrar_evento(usuario_actual, "VER_CAMPUS")
 
 # Añadir nuevo dispositivo
-def añadir_dispositivo(campus):
-    for i, c in enumerate(campus):
-        print(f"{i+1}. {c}")
-    opcion = int(input("\nSeleccione un campus: ")) - 1
-    if 0 <= opcion < len(campus):
-        dispositivo = input("Tipo de dispositivo: ")
-        nombre = input("Nombre del dispositivo: ")
+def añadir_dispositivo(campus, usuario_actual):
+    ver_campus(campus, usuario_actual)
+    try:
+        opcion = int(input("\nSeleccione un campus: ")) - 1
+        if not 0 <= opcion < len(campus):
+            print("❌ Campus inválido")
+            return
+    except ValueError:
+        print("❌ Ingrese un número válido")
+        return
 
-        while True:
-            direccion_ip = input("Dirección IP: ")
-            if validar_ip(direccion_ip) and ip_en_rango(direccion_ip):
-                break
-            else:
-                print("❌ IP inválida o fuera de rango permitido.")
+    dispositivo = input("Tipo de dispositivo: ").title()
+    nombre = input("Nombre del dispositivo: ").strip()
 
-        vlans = input("VLAN(s): ")
-        servicios = input("Servicios: ")
-        capa = input("Capa: ")
+    while True:
+        direccion_ip = input("Dirección IP: ").strip()
+        if validar_ip(direccion_ip) and ip_en_rango(direccion_ip):
+            break
+        print("❌ IP inválida o fuera de rango permitido.")
 
-        with open(f"{campus[opcion]}.txt", "a") as archivo:
-            archivo.write("\n-----------------------------\n")
-            archivo.write(f"Dispositivo: {dispositivo}\n")
-            archivo.write(f"Nombre: {nombre}\n")
-            archivo.write(f"IP: {direccion_ip}\n")
-            archivo.write(f"VLAN(s): {vlans}\n")
-            archivo.write(f"Servicios: {servicios}\n")
-            archivo.write(f"Capa: {capa}\n")
-            archivo.write("-----------------------------\n")
-        print("✅ Dispositivo agregado.")
+    vlans = input("VLAN(s): ").strip()
+    servicios = input("Servicios: ").strip()
+    capa = input("Capa: ").strip()
 
-# Añadir nuevo campus
-def añadir_campus(campus):
-    nuevo = input("Nombre del nuevo campus: ")
-    if nuevo not in campus:
+    # Registrar en archivo
+    with open(f"{campus[opcion]}.txt", "a") as archivo:
+        archivo.write("\n" + "-"*30 + "\n")
+        archivo.write(f"Dispositivo: {dispositivo}\n")
+        archivo.write(f"Nombre: {nombre}\n")
+        archivo.write(f"IP: {direccion_ip}\n")
+        archivo.write(f"VLAN(s): {vlans}\n")
+        archivo.write(f"Servicios: {servicios}\n")
+        archivo.write(f"Capa: {capa}\n")
+        archivo.write("-"*30 + "\n")
+
+    # registrando eventos
+    registrar_evento(
+        usuario_actual,
+        "DISPOSITIVO_AGREGADO",
+        f"Campus: {campus[opcion]}, Tipo: {dispositivo}, IP: {direccion_ip}"
+    )
+    print("✅ Dispositivo agregado.")
+#aqui se añade campus
+def añadir_campus(campus, usuario_actual):
+    nuevo = input("Nombre del nuevo campus: ").strip()
+    if nuevo and nuevo not in campus:
         campus.append(nuevo)
+        registrar_evento(usuario_actual, "CAMPUS_AGREGADO", f"Nombre: {nuevo}")
         print(f"🏫 Campus '{nuevo}' agregado.")
     else:
-        print("⚠️ El campus ya existe.")
+        print("⚠️ El campus ya existe o nombre inválido")
 
 # Programa principal
 def main():
-    sesion()
+    usuario_actual = sesion()
     campus = ["Zona Core", "Campus Uno", "Campus Matriz", "Sector Outsourcing"]
+    
     while True:
         mostrar_menu()
-        opcion = input("Seleccione una opción: ")
+        opcion = input("Seleccione una opción: ").strip()
+
         if opcion == "1":
-            ver_dispositivos(campus)
+            ver_dispositivos(campus, usuario_actual)
         elif opcion == "2":
-            ver_campus(campus)
+            ver_campus(campus, usuario_actual)
         elif opcion == "3":
-            añadir_dispositivo(campus)
+            añadir_dispositivo(campus, usuario_actual)
         elif opcion == "4":
-            añadir_campus(campus)
+            añadir_campus(campus, usuario_actual)
         elif opcion == "5":
+            registrar_evento(usuario_actual, "SESION_CERRADA")
             print("👋 Hasta luego.")
             break
         else:
             print("❌ Opción inválida.")
+        
+        input("\nPresione Enter para continuar...")
 
 if __name__ == "__main__":
     main()
+
+    #profe sadro rajese con un 7 porfa UWU
 
