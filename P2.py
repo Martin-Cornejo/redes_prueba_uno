@@ -1,116 +1,153 @@
-
+import os
 import re
 import ipaddress
-from datetime import datetime
 
-ARCHIVO = "dispositivos_guardados.txt"
+# ASCII art
+print("""
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~ ____  _____ ____  _____ ____          ___     __ __ ~
+|  _ \| ___|  _ \| ____/ ___|        / \ \   / // |
+| |) |  _| | | | |  _| \__ \ _____ / _ \ \ / /  | |
+|  _ <| || || | |___ __) |/ ___ \ V /   | |
+|| \|/||/     //   \/    ||
+~                                                     ~
+~              Eloy , Martin , Davor                  ~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+""")
 
+# Sesión predefinida
+def sesion():
+    usuarios = {
+        "admin": "admin",
+        "eloy": "eloy",
+        "davor": "davor",
+        "martin": "martin",
+        "administrador": "administrador"
+    }
+    while True:
+        print("\nInicio de sesión")
+        usuario = input("Escriba nombre del usuario: ").strip()
+        if usuario in usuarios:
+            contrasena = input("Escriba la contraseña: ").strip()
+            if contrasena == usuarios[usuario]:
+                print("✅ Bienvenido " + usuario)
+                break
+            else:
+                print("❌ Contraseña incorrecta")
+        else:
+            print(f"❌ Usuario incorrecto: {usuario}")
+
+# Validación de IP
 def validar_ip(ip):
+    patron = re.compile(r"^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
+                        r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
+                        r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
+                        r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+    return patron.match(ip)
+
+# Comprobar si IP está en rango privado válido
+def ip_en_rango(ip):
+    rangos_validos = [
+        ipaddress.ip_network('192.168.0.0/16'),
+        ipaddress.ip_network('10.0.0.0/8'),
+        ipaddress.ip_network('172.16.0.0/12')
+    ]
     try:
-        ipaddress.ip_address(ip)
-        return True
+        ip_obj = ipaddress.ip_address(ip)
+        return any(ip_obj in rango for rango in rangos_validos)
     except ValueError:
         return False
 
-def ingresar_dispositivo():
-    print("\n🆕 Ingrese los datos del nuevo dispositivo:")
-
-    nombre = input("Nombre del dispositivo: ").strip()
-    while not nombre:
-        nombre = input("⚠️ Nombre vacío. Intente de nuevo: ").strip()
-
-    tipo = input("Tipo (Switch, Router, Access Point): ").strip()
-    while tipo.lower() not in ["switch", "router", "access point"]:
-        tipo = input("⚠️ Tipo no válido. Ingrese Switch, Router o Access Point: ").strip()
-
-    ip = input("Dirección IP: ").strip()
-    while not validar_ip(ip):
-        ip = input("⚠️ IP inválida. Ejemplo válido: 192.168.1.1 ➤ ").strip()
-
-    ubicacion = input("Ubicación física: ").strip()
-    while not ubicacion:
-        ubicacion = input("⚠️ Ubicación vacía. Intente de nuevo: ").strip()
-
-    fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    dispositivo = {
-        "Nombre": nombre,
-        "Tipo": tipo,
-        "IP": ip,
-        "Ubicación": ubicacion,
-        "Fecha": fecha
-    }
-
-    guardar_dispositivo(dispositivo)
-    print("✅ Dispositivo guardado correctamente.")
-
-def guardar_dispositivo(dispositivo):
-    with open(ARCHIVO, "a") as archivo:
-        archivo.write(f"Nombre: {dispositivo['Nombre']}\n")
-        archivo.write(f"Tipo: {dispositivo['Tipo']}\n")
-        archivo.write(f"IP: {dispositivo['IP']}\n")
-        archivo.write(f"Ubicación: {dispositivo['Ubicación']}\n")
-        archivo.write(f"Fecha de Registro: {dispositivo['Fecha']}\n")
-        archivo.write("-" * 40 + "\n")
-
-def buscar_dispositivo():
-    if not verificar_existencia_archivo():
-        return
-    criterio = input("🔍 Buscar por Nombre o IP: ").strip().lower()
-    encontrado = False
-    with open(ARCHIVO, "r") as archivo:
-        bloque = ""
-        for linea in archivo:
-            bloque += linea
-            if linea.strip() == "-" * 40:
-                if criterio in bloque.lower():
-                    print("\n📄 Resultado encontrado:\n" + bloque)
-                    encontrado = True
-                bloque = ""
-    if not encontrado:
-        print("❌ No se encontró ningún dispositivo con ese criterio.")
-
-def limpiar_registros():
-    confirmacion = input("⚠️ ¿Seguro que quieres borrar todos los registros? (s/n): ").lower()
-    if confirmacion == "s":
-        open(ARCHIVO, "w").close()
-        print("🧹 Todos los registros han sido eliminados.")
-    else:
-        print("❌ Operación cancelada.")
-
+# Mostrar menú
 def mostrar_menu():
-    while True:
-        print("\n📋 MENÚ PRINCIPAL")
-        print("1. Ingresar nuevo dispositivo")
-        print("2. Buscar dispositivo")
-        print("3. Limpiar todos los registros")
-        print("4. Salir")
+    print("\n📋 MENÚ PRINCIPAL")
+    print("1. Ver dispositivos")
+    print("2. Ver campus")
+    print("3. Añadir dispositivo")
+    print("4. Añadir campus")
+    print("5. Salir")
 
-        opcion = input("Seleccione una opción (1-4): ").strip()
+# Ver dispositivos por campus
+def ver_dispositivos(campus):
+    os.system("cls" if os.name == "nt" else "clear")
+    for i, c in enumerate(campus):
+        print(f"{i+1}. {c}")
+    opcion = int(input("\nSeleccione un campus: ")) - 1
+    if 0 <= opcion < len(campus):
+        try:
+            with open(f"{campus[opcion]}.txt", "r") as archivo:
+                print("\n--- Dispositivos Registrados ---")
+                print(archivo.read())
+        except FileNotFoundError:
+            print("⚠️ No hay dispositivos registrados aún.")
+
+# Ver lista de campus
+def ver_campus(campus):
+    print("\n--- Lista de Campus ---")
+    for i, c in enumerate(campus):
+        print(f"{i+1}. {c}")
+
+# Añadir nuevo dispositivo
+def añadir_dispositivo(campus):
+    for i, c in enumerate(campus):
+        print(f"{i+1}. {c}")
+    opcion = int(input("\nSeleccione un campus: ")) - 1
+    if 0 <= opcion < len(campus):
+        dispositivo = input("Tipo de dispositivo: ")
+        nombre = input("Nombre del dispositivo: ")
+
+        while True:
+            direccion_ip = input("Dirección IP: ")
+            if validar_ip(direccion_ip) and ip_en_rango(direccion_ip):
+                break
+            else:
+                print("❌ IP inválida o fuera de rango permitido.")
+
+        vlans = input("VLAN(s): ")
+        servicios = input("Servicios: ")
+        capa = input("Capa: ")
+
+        with open(f"{campus[opcion]}.txt", "a") as archivo:
+            archivo.write("\n-----------------------------\n")
+            archivo.write(f"Dispositivo: {dispositivo}\n")
+            archivo.write(f"Nombre: {nombre}\n")
+            archivo.write(f"IP: {direccion_ip}\n")
+            archivo.write(f"VLAN(s): {vlans}\n")
+            archivo.write(f"Servicios: {servicios}\n")
+            archivo.write(f"Capa: {capa}\n")
+            archivo.write("-----------------------------\n")
+        print("✅ Dispositivo agregado.")
+
+# Añadir nuevo campus
+def añadir_campus(campus):
+    nuevo = input("Nombre del nuevo campus: ")
+    if nuevo not in campus:
+        campus.append(nuevo)
+        print(f"🏫 Campus '{nuevo}' agregado.")
+    else:
+        print("⚠️ El campus ya existe.")
+
+# Programa principal
+def main():
+    sesion()
+    campus = ["Zona Core", "Campus Uno", "Campus Matriz", "Sector Outsourcing"]
+    while True:
+        mostrar_menu()
+        opcion = input("Seleccione una opción: ")
         if opcion == "1":
-            ingresar_dispositivo()
+            ver_dispositivos(campus)
         elif opcion == "2":
-            buscar_dispositivo()
+            ver_campus(campus)
         elif opcion == "3":
-            limpiar_registros()
+            añadir_dispositivo(campus)
         elif opcion == "4":
-            print("👋 Saliendo del programa. ¡Hasta pronto!")
+            añadir_campus(campus)
+        elif opcion == "5":
+            print("👋 Hasta luego.")
             break
         else:
-            print("⚠️ Opción inválida. Intente de nuevo.")
-
-def verificar_existencia_archivo():
-    try:
-        with open(ARCHIVO, "r") as f:
-            contenido = f.read()
-            if not contenido.strip():
-                print("⚠️ No hay registros guardados.")
-                return False
-            return True
-    except FileNotFoundError:
-        print("⚠️ No existe el archivo de registros.")
-        return False
+            print("❌ Opción inválida.")
 
 if __name__ == "__main__":
-    mostrar_menu()
-1
+    main()
+
