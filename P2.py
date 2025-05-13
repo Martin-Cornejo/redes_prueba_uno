@@ -6,6 +6,9 @@ import ipaddress
 import csv
 from datetime import datetime
 
+
+#MI MODIFICACION ---------------------------------------------------------------------------------+
+
 # registro de uso / historial ＞﹏＜
 ARCHIVO_REGISTRO = "registros_red.csv"
 
@@ -30,6 +33,7 @@ def registrar_evento(usuario, accion, detalles=""):
             ])
     except Exception as e:
         print(f"⚠️ Error en registro: {e}")
+#MI MODIFICACION ---------------------------------------------------------------------------------+
 
 # aqui se inicia el registro
 iniciar_registro()
@@ -39,13 +43,14 @@ iniciar_registro()
 print("""
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~ ____  _____ ____  _____ ____          ___     __ __ ~
-|  _ \| ___|  _ \| ____/ ___|        / \ \   / // |
-| |) |  _| | | | |  _| \__ \ _____ / _ \ \ / /  | |
-|  _ <| || || | |___ __) |/ ___ \ V /   | |
-|| \|/||/     //   \/    ||
+~|  _ \| ____|  _ \| ____/ ___|        / \ \   / //_ |~
+~| |_) |  _| | | | |  _| \___ \ _____ / _ \ \ / /  | |~
+~|  _ <| |___| |_| | |___ ___) |_____/ ___ \ V /   | |~
+~|_| \_\_____|____/|_____|____/     /_/   \_\_/    |_|~
 ~                                                     ~
 ~              Eloy , Martin , Davor                  ~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 """)
 
 # Sesión predefinida 
@@ -103,8 +108,6 @@ def mostrar_menu():
     print("3. Añadir dispositivo")
     print("4. Añadir campus")
     print("5. Salir")
-    print("6. Eliminar dispositivo")
-
 # Ver dispositivos por campus
 def ver_dispositivos(campus, usuario_actual):
     os.system("cls" if os.name == "nt" else "clear")
@@ -157,7 +160,7 @@ def añadir_dispositivo(campus, usuario_actual):
     vlans = input("VLAN(s): ").strip()
     servicios = input("Servicios: ").strip()
     capa = input("Capa: ").strip()
-
+#MI MODIFICACION ---------------------------------------------------------------------------------+
     # Registrar en archivo
     with open(f"{campus[opcion]}.txt", "a") as archivo:
         archivo.write("\n" + "-"*30 + "\n")
@@ -185,57 +188,6 @@ def añadir_campus(campus, usuario_actual):
         print(f"🏫 Campus '{nuevo}' agregado.")
     else:
         print("⚠️ El campus ya existe o nombre inválido")
-       
- # Eliminar dispositivo
-def eliminar_dispositivo(campus, usuario_actual):
-    ver_campus(campus, usuario_actual)
-    try:
-        opcion = int(input("\nSeleccione un campus: ")) - 1
-        if not 0 <= opcion < len(campus):
-            print("❌ Campus inválido")
-            return
-    except ValueError:
-        print("❌ Ingrese un número válido")
-        return
-
-    archivo_nombre = f"{campus[opcion]}.txt"
-    if not os.path.exists(archivo_nombre):
-        print("⚠️ No hay dispositivos en este campus.")
-        return
-
-    with open(archivo_nombre, "r") as archivo:
-        contenido = archivo.read()
-
-    bloques = contenido.strip().split("-" * 30)
-    dispositivos = [b.strip() for b in bloques if b.strip()]
-
-    if not dispositivos:
-        print("⚠️ No hay dispositivos registrados.")
-        return
-
-    print("\n--- Dispositivos ---")
-    for i, d in enumerate(dispositivos):
-        nombre = re.search(r"Nombre:\s*(.*)", d)
-        print(f"{i+1}. {nombre.group(1) if nombre else 'Sin nombre'}")
-
-    try:
-        eliminar_idx = int(input("Seleccione número del dispositivo a eliminar: ")) - 1
-        if not 0 <= eliminar_idx < len(dispositivos):
-            print("❌ Opción inválida.")
-            return
-    except ValueError:
-        print("❌ Ingrese un número válido.")
-        return
-
-    eliminado = dispositivos.pop(eliminar_idx)
-    nuevo_contenido = ("\n" + "-" * 30 + "\n").join(dispositivos)
-
-    with open(archivo_nombre, "w") as archivo:
-        archivo.write(nuevo_contenido.strip() + "\n" if dispositivos else "")
-
-    registrar_evento(usuario_actual, "DISPOSITIVO_ELIMINADO", f"Campus: {campus[opcion]}, Detalles: {eliminado.splitlines()[0]}")
-    print("🗑️ Dispositivo eliminado correctamente.")
-
 # Programa principal
 def main():
     usuario_actual = sesion()
@@ -256,8 +208,7 @@ def main():
         elif opcion == "5":
             registrar_evento(usuario_actual, "SESION_CERRADA")
             print("👋 Hasta luego.")
-        elif opcion == "6":
-            eliminar_dispositivo(campus, usuario_actual)
+
 
             break
         else:
@@ -268,5 +219,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-    #profe sadro rajese con un 7 porfa UWU
 
