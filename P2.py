@@ -256,7 +256,7 @@ def main():
         elif opcion == "5":
             registrar_evento(usuario_actual, "SESION_CERRADA")
             print("👋 Hasta luego.")
-         elif opcion == "6":
+        elif opcion == "6":
             eliminar_dispositivo(campus, usuario_actual)
 
             break
