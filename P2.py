@@ -6,35 +6,6 @@ import ipaddress
 import csv
 from datetime import datetime
 
-# registro de uso / historial ＞﹏＜
-ARCHIVO_REGISTRO = "registros_red.csv"
-
-def iniciar_registro():
-    #se Crea el archivo de registro si es que no llega a existie
-    if not os.path.exists(ARCHIVO_REGISTRO):
-        with open(ARCHIVO_REGISTRO, mode='w', newline='', encoding='utf-8') as archivo:
-            escritor = csv.writer(archivo)
-            escritor.writerow(["Fecha", "Hora", "Usuario", "Acción", "Detalles"])
-
-def registrar_evento(usuario, accion, detalles=""):
-    """Guarda un evento en el registro"""
-    try:
-        with open(ARCHIVO_REGISTRO, mode='a', newline='', encoding='utf-8') as archivo:
-            escritor = csv.writer(archivo)
-            escritor.writerow([
-                datetime.now().strftime("%d-%m-%Y"),#formatode la fecha
-                datetime.now().strftime("%H:%M:%S"),#formato de la hora
-                usuario,
-                accion,
-                str(detalles)
-            ])
-    except Exception as e:
-        print(f"⚠️ Error en registro: {e}")
-
-# aqui se inicia el registro
-iniciar_registro()
-# ================================================================
-
 # ASCII art para una presentacion mas fixita
 print("""
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -103,7 +74,6 @@ def mostrar_menu():
     print("3. Añadir dispositivo")
     print("4. Añadir campus")
     print("5. Salir")
-    print("6. Eliminar dispositivo")
 
 # Ver dispositivos por campus
 def ver_dispositivos(campus, usuario_actual):
@@ -158,23 +128,6 @@ def añadir_dispositivo(campus, usuario_actual):
     servicios = input("Servicios: ").strip()
     capa = input("Capa: ").strip()
 
-    # Registrar en archivo
-    with open(f"{campus[opcion]}.txt", "a") as archivo:
-        archivo.write("\n" + "-"*30 + "\n")
-        archivo.write(f"Dispositivo: {dispositivo}\n")
-        archivo.write(f"Nombre: {nombre}\n")
-        archivo.write(f"IP: {direccion_ip}\n")
-        archivo.write(f"VLAN(s): {vlans}\n")
-        archivo.write(f"Servicios: {servicios}\n")
-        archivo.write(f"Capa: {capa}\n")
-        archivo.write("-"*30 + "\n")
-
-    # registrando eventos
-    registrar_evento(
-        usuario_actual,
-        "DISPOSITIVO_AGREGADO",
-        f"Campus: {campus[opcion]}, Tipo: {dispositivo}, IP: {direccion_ip}"
-    )
     print("✅ Dispositivo agregado.")
 #aqui se añade campus
 def añadir_campus(campus, usuario_actual):
@@ -185,56 +138,6 @@ def añadir_campus(campus, usuario_actual):
         print(f"🏫 Campus '{nuevo}' agregado.")
     else:
         print("⚠️ El campus ya existe o nombre inválido")
-       
- # Eliminar dispositivo
-def eliminar_dispositivo(campus, usuario_actual):
-    ver_campus(campus, usuario_actual)
-    try:
-        opcion = int(input("\nSeleccione un campus: ")) - 1
-        if not 0 <= opcion < len(campus):
-            print("❌ Campus inválido")
-            return
-    except ValueError:
-        print("❌ Ingrese un número válido")
-        return
-
-    archivo_nombre = f"{campus[opcion]}.txt"
-    if not os.path.exists(archivo_nombre):
-        print("⚠️ No hay dispositivos en este campus.")
-        return
-
-    with open(archivo_nombre, "r") as archivo:
-        contenido = archivo.read()
-
-    bloques = contenido.strip().split("-" * 30)
-    dispositivos = [b.strip() for b in bloques if b.strip()]
-
-    if not dispositivos:
-        print("⚠️ No hay dispositivos registrados.")
-        return
-
-    print("\n--- Dispositivos ---")
-    for i, d in enumerate(dispositivos):
-        nombre = re.search(r"Nombre:\s*(.*)", d)
-        print(f"{i+1}. {nombre.group(1) if nombre else 'Sin nombre'}")
-
-    try:
-        eliminar_idx = int(input("Seleccione número del dispositivo a eliminar: ")) - 1
-        if not 0 <= eliminar_idx < len(dispositivos):
-            print("❌ Opción inválida.")
-            return
-    except ValueError:
-        print("❌ Ingrese un número válido.")
-        return
-
-    eliminado = dispositivos.pop(eliminar_idx)
-    nuevo_contenido = ("\n" + "-" * 30 + "\n").join(dispositivos)
-
-    with open(archivo_nombre, "w") as archivo:
-        archivo.write(nuevo_contenido.strip() + "\n" if dispositivos else "")
-
-    registrar_evento(usuario_actual, "DISPOSITIVO_ELIMINADO", f"Campus: {campus[opcion]}, Detalles: {eliminado.splitlines()[0]}")
-    print("🗑️ Dispositivo eliminado correctamente.")
 
 # Programa principal
 def main():
@@ -256,9 +159,6 @@ def main():
         elif opcion == "5":
             registrar_evento(usuario_actual, "SESION_CERRADA")
             print("👋 Hasta luego.")
-        elif opcion == "6":
-            eliminar_dispositivo(campus, usuario_actual)
-
             break
         else:
             print("❌ Opción inválida.")
@@ -267,6 +167,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    #profe sadro rajese con un 7 porfa UWU
 
