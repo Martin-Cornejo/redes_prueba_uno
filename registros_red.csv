@@ -1,0 +1,4 @@
+Fecha,Hora,Usuario,Acción,Detalles
+13-05-2025,16:15:32,admin,INICIO_SESION_EXITOSO,
+13-05-2025,16:15:42,admin,CAMPUS_AGREGADO,Nombre: prueba 2
+13-05-2025,16:15:51,admin,SESION_CERRADA,
