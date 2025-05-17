@@ -33,7 +33,7 @@ def registrar_evento(usuario, accion, detalles=""):
             ])
     except Exception as e:
         print(f"⚠️ Error en registro: {e}")
-#MI MODIFICACION ---------------------------------------------------------------------------------+
+#ELOY MODIFICACION ---------------------------------------------------------------------------------+
 
 # aqui se inicia el registro
 iniciar_registro()
@@ -53,6 +53,8 @@ print("""
 
 """)
 
+
+
 # Sesión predefinida 
 def sesion():
     usuarios = {
@@ -63,6 +65,7 @@ def sesion():
         "martin": "martin",
         "administrador": "administrador"
     }
+    
     while True:
         print("\nInicio de sesión")
         usuario = input("Escriba nombre del usuario: ").strip()
@@ -86,19 +89,28 @@ def validar_ip(ip):
                         r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
                         r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
     return patron.match(ip)
+
+#validacion de la mascara 
+def validar_mascara(mascara):
+    patron = re.compile(r"^(255|254|252|248|240|224|192|128|0)\."
+                        r"(255|254|252|248|240|224|192|128|0)\."
+                        r"(255|254|252|248|240|224|192|128|0)\."
+                        r"(255|254|252|248|240|224|192|128|0)$")
+    return patron.match(mascara)
+
+#ELOY MODIFICACION ---------------------------------------------------------------------------------+
+
 # yo kcho que esta wa hay que borrarla , puro cacho
-# Comprobar si IP está en rango privado válido
+# Comprobar si IP está en rango privado válido , los deje como comentario para no borrar pero que no se ejecuten
+
 def ip_en_rango(ip):
-    rangos_validos = [
-        ipaddress.ip_network('192.168.0.0/16'),
-        ipaddress.ip_network('10.0.0.0/8'),
-        ipaddress.ip_network('172.16.0.0/12')
-    ]
     try:
-        ip_obj = ipaddress.ip_address(ip)
-        return any(ip_obj in rango for rango in rangos_validos)
+        ip_obj = ipaddress.IPv4Address(ip)
+        # Solo permite IPs desde 1.0.0.0 hasta 223.255.255.255 (clase A, B, C)
+        return ip_obj >= ipaddress.IPv4Address("1.0.0.0") and ip_obj <= ipaddress.IPv4Address("223.255.255.255")
     except ValueError:
         return False
+#---------------------------------------------------------------------------------+
 
 # Mostrar menú
 def mostrar_menu():
@@ -157,26 +169,32 @@ def añadir_dispositivo(campus, usuario_actual):
             break
         print("❌ IP inválida o fuera de rango permitido.")
 
+    mascara = input("mascara: ").strip()
     vlans = input("VLAN(s): ").strip()
     servicios = input("Servicios: ").strip()
     capa = input("Capa: ").strip()
-#MI MODIFICACION ---------------------------------------------------------------------------------+
+#ELOY MODIFICACION ---------------------------------------------------------------------------------+
     # Registrar en archivo
     with open(f"{campus[opcion]}.txt", "a") as archivo:
         archivo.write("\n" + "-"*30 + "\n")
         archivo.write(f"Dispositivo: {dispositivo}\n")
         archivo.write(f"Nombre: {nombre}\n")
         archivo.write(f"IP: {direccion_ip}\n")
+        #------------
+        archivo.write(f"mascara: {mascara}\n")
+        #------------
         archivo.write(f"VLAN(s): {vlans}\n")
         archivo.write(f"Servicios: {servicios}\n")
         archivo.write(f"Capa: {capa}\n")
         archivo.write("-"*30 + "\n")
 
+#ELOY MODIFICACION ---------------------------------------------------------------------------------+
+
     # registrando eventos
     registrar_evento(
         usuario_actual,
         "DISPOSITIVO_AGREGADO",
-        f"Campus: {campus[opcion]}, Tipo: {dispositivo}, IP: {direccion_ip}"
+        f"Campus: {campus[opcion]}, Tipo: {dispositivo}, IP: {direccion_ip}, Mascara: {mascara}"
     )
     print("✅ Dispositivo agregado.")
 #aqui se añade campus
