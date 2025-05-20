@@ -37,15 +37,17 @@ iniciar_registro()
 
 # ASCII art para una presentacion mas fixita
 print("""
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~ ____  _____ ____  _____ ____          ___     __ __ ~
-~|  _ \| ____|  _ \| ____/ ___|        / \ \   / //_ |~
-~| |_) |  _| | | | |  _| \___ \ _____ / _ \ \ / /  | |~
-~|  _ <| |___| |_| | |___ ___) |_____/ ___ \ V /   | |~
-~|_| \_\_____|____/|_____|____/     /_/   \_\_/    |_|~
-~                                                     ~
-~              Eloy , Martin , Davor                  ~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~  ____  _____ ____   _____ ____           __ ___      ___ ___     ~
+~ |  _ \ | ____|  _ \| ____/  __|         /  \   \    /  //_  |    ~
+~ | |_) || |_  | | | | |_  | |__  _____  / /\ \   \  /  /   | |    ~             
+~ |  _ < |  _| | | | |  _| \___ \ \___/ / /__\ \   \/  /    | |    ~
+~ | | | || |___| |_| | |___ ___) |     /  ___   \     /    _| |_   ~
+~ |_| \_|\_____|____/|_____|____/     /__/   \___\___/    |_____|  ~
+~                      - Redes Avanzadas 1 -                       ~
+~                                                                  ~
+~                    - Eloy , Martin , Davor -                     ~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """)
 
@@ -98,13 +100,17 @@ def ip_en_rango(ip):
 
 # Mostrar menú
 def mostrar_menu():
-    print("\n📋 MENÚ PRINCIPAL")
-    print("1. Ver dispositivos")
-    print("2. Ver campus")
-    print("3. Añadir dispositivo")
-    print("4. Añadir campus")
-    print("5. Salir")
-    print("6. Eliminar dispositivo")
+    print('''
++-------------------------+
+| 📋 MENÚ PRINCIPAL       |
+| 1. Ver dispositivos     |
+| 2. Ver campus           |
+| 3. Añadir dispositivo   |
+| 4. Añadir campus        |
+| 5. Salir                |
+| 6. Eliminar dispositivo |
++-------------------------+
+          ''')
 
 # Ver dispositivos por campus
 def ver_dispositivos(campus, usuario_actual):
@@ -159,24 +165,32 @@ def añadir_dispositivo(campus, usuario_actual):
     servicios = input("Servicios: ").strip()
     capa = input("Capa: ").strip()
 
+    #ELOY MODIFICACION ---------------------------------------------------------------------------------+
     # Registrar en archivo
     with open(f"{campus[opcion]}.txt", "a") as archivo:
         archivo.write("\n" + "-"*30 + "\n")
         archivo.write(f"Dispositivo: {dispositivo}\n")
         archivo.write(f"Nombre: {nombre}\n")
         archivo.write(f"IP: {direccion_ip}\n")
+        #------------
+        archivo.write(f"mascara: {mascara}\n")
+        #------------
         archivo.write(f"VLAN(s): {vlans}\n")
         archivo.write(f"Servicios: {servicios}\n")
         archivo.write(f"Capa: {capa}\n")
         archivo.write("-"*30 + "\n")
 
+
+   #ELOY MODIFICACION ---------------------------------------------------------------------------------+
+
     # registrando eventos
     registrar_evento(
         usuario_actual,
         "DISPOSITIVO_AGREGADO",
-        f"Campus: {campus[opcion]}, Tipo: {dispositivo}, IP: {direccion_ip}"
+        f"Campus: {campus[opcion]}, Tipo: {dispositivo}, IP: {direccion_ip}, Mascara: {mascara}"
     )
     print("✅ Dispositivo agregado.")
+#aqui se añade campus
 #aqui se añade campus
 def añadir_campus(campus, usuario_actual):
     nuevo = input("Nombre del nuevo campus: ").strip()
