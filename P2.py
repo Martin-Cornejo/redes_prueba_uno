@@ -118,16 +118,63 @@ def añadir_dispositivo(campus, usuario_actual):
     dispositivo = input("Tipo de dispositivo: ").title()
     nombre = input("Nombre del dispositivo: ").strip()
 
+    # Submenú para tipo de IP
     while True:
-        direccion_ip = input("Dirección IP: ").strip()
-        if validar_ip(direccion_ip) and ip_en_rango(direccion_ip):
+        print("\n¿Tipo de IP que desea agregar?")
+        print("1. IPv4")
+        print("2. IPv6")
+        tipo_ip = input("Seleccione una opción (1/2): ").strip()
+
+        if tipo_ip == "1":
+            while True:
+                direccion_ip = input("Dirección IPv4 (ej: 192.168.1.1): ").strip()
+                mascara = input("Máscara (ej: 24): ").strip()
+                try:
+                    red = ipaddress.IPv4Network(f"{direccion_ip}/{mascara}", strict=False)
+                    if ip_en_rango(direccion_ip):
+                        direccion_completa = f"{direccion_ip}/{mascara}"
+                        break
+                    else:
+                        print("❌ IP fuera de rango privado permitido.")
+                except Exception as e:
+                    print(f"❌ IP o máscara inválida. {e}")
             break
-        print("❌ IP inválida o fuera de rango permitido.")
+
+        elif tipo_ip == "2":
+            while True:
+                direccion_ip = input("Dirección IPv6 (ej: 2001:db8::1): ").strip()
+                mascara = input("Máscara (ej: 64): ").strip()
+                try:
+                    red = ipaddress.IPv6Network(f"{direccion_ip}/{mascara}", strict=False)
+                    direccion_completa = f"{direccion_ip}/{mascara}"
+                    break
+                except Exception as e:
+                    print(f"❌ IP o máscara inválida. {e}")
+            break
+        else:
+            print("❌ Opción inválida. Intente nuevamente.")
 
     vlans = input("VLAN(s): ").strip()
     servicios = input("Servicios: ").strip()
     capa = input("Capa: ").strip()
 
+    # Registrar en archivo
+    with open(f"{campus[opcion]}.txt", "a") as archivo:
+        archivo.write("\n" + "-"*30 + "\n")
+        archivo.write(f"Dispositivo: {dispositivo}\n")
+        archivo.write(f"Nombre: {nombre}\n")
+        archivo.write(f"IP: {direccion_completa}\n")
+        archivo.write(f"VLAN(s): {vlans}\n")
+        archivo.write(f"Servicios: {servicios}\n")
+        archivo.write(f"Capa: {capa}\n")
+        archivo.write("-"*30 + "\n")
+
+    # registrando eventos
+    registrar_evento(
+        usuario_actual,
+        "DISPOSITIVO_AGREGADO",
+        f"Campus: {campus[opcion]}, Tipo: {dispositivo}, IP: {direccion_completa}"
+    )
     print("✅ Dispositivo agregado.")
 #aqui se añade campus
 def añadir_campus(campus, usuario_actual):
