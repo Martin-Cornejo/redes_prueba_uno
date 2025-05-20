@@ -80,6 +80,13 @@ def sesion():
             registrar_evento("DESCONOCIDO", "INTENTO_USUARIO", f"Usuario no existe: {usuario}")
 
 # Validación de IP
+def validar_ipv6(ip):
+    try:
+        ipaddress.IPv6Address(ip)
+        return True
+    except ValueError:
+        return False
+    
 def validar_ip(ip):
     patron = re.compile(r"^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
                         r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
@@ -89,11 +96,11 @@ def validar_ip(ip):
 
 #validacion de la mascara
 def validar_mascara(mascara):
-    patron = re.compile(r"^(255|254|252|248|240|224|192|128|0)\."
-                        r"(255|254|252|248|240|224|192|128|0)\."
-                        r"(255|254|252|248|240|224|192|128|0)\."
-                        r"(255|254|252|248|240|224|192|128|0)$")
-    return patron.match(mascara)
+    try:
+        ip_obj = ipaddress.IPv4Address(mascara)
+        return ip_obj > ipaddress.IPv4Address("0.0.0.0") and ip_obj <= ipaddress.IPv4Address("255.255.255.255")
+    except ValueError:
+        return False
 
 #ELOY MODIFICACION ---------------------------------------------------------------------------------+
 # yo kcho que esta wa hay que borrarla , puro cacho
@@ -109,13 +116,17 @@ def ip_en_rango(ip):
 
 # Mostrar menú
 def mostrar_menu():
-    print("\n📋 MENÚ PRINCIPAL")
-    print("1. Ver dispositivos")
-    print("2. Ver campus")
-    print("3. Añadir dispositivo")
-    print("4. Añadir campus")
-    print("5. Salir")
-    print("6. Eliminar dispositivo")
+    print('''
++-------------------------+
+| 📋 MENÚ PRINCIPAL       |
+| 1. Ver dispositivos     |
+| 2. Ver campus           |
+| 3. Añadir dispositivo   |
+| 4. Añadir campus        |
+| 5. Salir                |
+| 6. Eliminar dispositivo |
++-------------------------+
+          ''')
 
 # Ver dispositivos por campus
 def ver_dispositivos(campus, usuario_actual):
@@ -160,18 +171,45 @@ def añadir_dispositivo(campus, usuario_actual):
     dispositivo = input("Tipo de dispositivo: ").title()
     nombre = input("Nombre del dispositivo: ").strip()
 
+    tipo_ip = input("¿Desea usar IPv4 o IPv6? (Escriba '4' o '6'): ").strip()
+    while tipo_ip not in ['4', '6']:
+        tipo_ip = input("❌ Opción inválida. Ingrese '4' para IPv4 o '6' para IPv6: ").strip()
+
+
     while True:
         direccion_ip = input("Dirección IP: ").strip()
-        if validar_ip(direccion_ip) and ip_en_rango(direccion_ip):
-            break
-        print("❌ IP inválida o fuera de rango permitido.")
+        if tipo_ip == '4':
+            try:
+                ip = ipaddress.IPv4Address(direccion_ip)
+                if ip > ipaddress.IPv4Address("0.0.0.0") and ip <= ipaddress.IPv4Address("255.255.255.255"):
+                    break
+            except ValueError:
+                pass
+            print("❌ IPv4 inválida. Use un rango desde 0.0.0.1 hasta 255.255.255.255.")
+        else:
+            if validar_ipv6(direccion_ip):
+                break
+            print("❌ IPv6 inválida. Intente nuevamente.")
     
-    mascara = input("mascara: ").strip()
+    while True:
+        mascara = input("Máscara (IPv4) o prefijo (IPv6 con /): ").strip()
+        if tipo_ip == '4' and validar_mascara(mascara):
+            break
+        elif tipo_ip == '6' and mascara.startswith("/") and mascara[1:].isdigit():
+            prefijo = int(mascara[1:])
+            if 0 <= prefijo <= 128:
+                break
+        else:
+            print("❌ Prefijo IPv6 fuera de rango (debe ser /0 a /128).")
+    else:
+        print("❌ Formato de máscara inválido.")
+
+    #ELOY MOD ---------------------------------------------------------------------------------+
     vlans = input("VLAN(s): ").strip()
     servicios = input("Servicios: ").strip()
     capa = input("Capa: ").strip()
 
-    #ELOY MODIFICACION ---------------------------------------------------------------------------------+
+    #ELOY MOD ---------------------------------------------------------------------------------+
     # Registrar en archivo
     with open(f"{campus[opcion]}.txt", "a") as archivo:
         archivo.write("\n" + "-"*30 + "\n")
@@ -191,7 +229,7 @@ def añadir_dispositivo(campus, usuario_actual):
     registrar_evento(
         usuario_actual,
         "DISPOSITIVO_AGREGADO",
-        f"Campus: {campus[opcion]}, Tipo: {dispositivo}, IP: {direccion_ip}"
+        f"Campus: {campus[opcion]}, Tipo: {dispositivo}, IP: {direccion_ip}, Mascara: {mascara}, VLAN(s): {vlans}, Servicios: {servicios}, Capa: {capa}"
     )
     print("✅ Dispositivo agregado.")
 
