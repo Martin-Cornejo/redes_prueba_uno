@@ -56,9 +56,9 @@ def validar_ip(ip):
 # Comprobar si IP está en rango privado válido
 def ip_en_rango(ip):
     rangos_validos = [
-        ipaddress.ip_network('192.168.0.0/16'),
-        ipaddress.ip_network('10.0.0.0/8'),
-        ipaddress.ip_network('172.16.0.0/12')
+        ipaddress.ip_network('0.0.0.0'),
+        ipaddress.ip_network('0.0.0.0'),
+        ipaddress.ip_network('0.0.0.0')
     ]
     try:
         ip_obj = ipaddress.ip_address(ip)
