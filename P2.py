@@ -165,24 +165,32 @@ def añadir_dispositivo(campus, usuario_actual):
     servicios = input("Servicios: ").strip()
     capa = input("Capa: ").strip()
 
+    #ELOY MODIFICACION ---------------------------------------------------------------------------------+
     # Registrar en archivo
     with open(f"{campus[opcion]}.txt", "a") as archivo:
         archivo.write("\n" + "-"*30 + "\n")
         archivo.write(f"Dispositivo: {dispositivo}\n")
         archivo.write(f"Nombre: {nombre}\n")
         archivo.write(f"IP: {direccion_ip}\n")
+        #------------
+        archivo.write(f"mascara: {mascara}\n")
+        #------------
         archivo.write(f"VLAN(s): {vlans}\n")
         archivo.write(f"Servicios: {servicios}\n")
         archivo.write(f"Capa: {capa}\n")
         archivo.write("-"*30 + "\n")
 
+
+   #ELOY MODIFICACION ---------------------------------------------------------------------------------+
+
     # registrando eventos
     registrar_evento(
         usuario_actual,
         "DISPOSITIVO_AGREGADO",
-        f"Campus: {campus[opcion]}, Tipo: {dispositivo}, IP: {direccion_ip}"
+        f"Campus: {campus[opcion]}, Tipo: {dispositivo}, IP: {direccion_ip}, Mascara: {mascara}"
     )
     print("✅ Dispositivo agregado.")
+#aqui se añade campus
 #aqui se añade campus
 def añadir_campus(campus, usuario_actual):
     nuevo = input("Nombre del nuevo campus: ").strip()
