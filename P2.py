@@ -71,8 +71,12 @@ def sesion():
         usuario = input("Escriba nombre del usuario: ").strip()
         if usuario in usuarios:
             contrasena = input("Escriba la contraseña: ").strip()
+           
             if contrasena == usuarios[usuario]:
-                print("✅ Bienvenido " + usuario)
+           
+                os.system("cls" if os.name == "nt" else "clear")
+           
+                print("✅ Bienvenido " + usuario + " !!!"+"  ƪ(°⌣°)ʃ ")
                 registrar_evento(usuario, "INICIO_SESION_EXITOSO")
                 return usuario
             else:
@@ -114,13 +118,14 @@ def ip_en_rango(ip):
 
 # Mostrar menú
 def mostrar_menu():
-    print("\n📋 MENÚ PRINCIPAL")
-    print("1. Ver dispositivos")
-    print("2. Ver campus")
-    print("3. Añadir dispositivo")
-    print("4. Añadir campus")
-    print("5. Salir")
-    print("6. Eliminar dispositivo")
+    print(" \n📋 MENÚ PRINCIPAL          |")
+    print("| 1. Ver dispositivos      |")
+    print("| 2. Ver campus            |")
+    print("| 3. Añadir dispositivo    |")
+    print("| 4. Añadir campus         |")
+    print("| 5. Salir                 |")
+    print("| 6. Eliminar dispositivo  |")
+
 
 # Ver dispositivos por campus
 def ver_dispositivos(campus, usuario_actual):
@@ -279,9 +284,9 @@ def main():
         elif opcion == "5":
             registrar_evento(usuario_actual, "SESION_CERRADA")
             print("👋 Hasta luego.")
+            break
         elif opcion == "6":
             eliminar_dispositivo(campus, usuario_actual)
-
             break
         else:
             print("❌ Opción inválida.")
@@ -290,3 +295,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+   #ahora cierraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa xd
