@@ -6,9 +6,6 @@ import ipaddress
 import csv
 from datetime import datetime
 
-
-#MI MODIFICACION ---------------------------------------------------------------------------------+
-
 # registro de uso / historial ＞﹏＜
 ARCHIVO_REGISTRO = "registros_red.csv"
 
@@ -33,7 +30,6 @@ def registrar_evento(usuario, accion, detalles=""):
             ])
     except Exception as e:
         print(f"⚠️ Error en registro: {e}")
-#ELOY MODIFICACION ---------------------------------------------------------------------------------+
 
 # aqui se inicia el registro
 iniciar_registro()
@@ -41,19 +37,19 @@ iniciar_registro()
 
 # ASCII art para una presentacion mas fixita
 print("""
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~ ____  _____ ____  _____ ____          ___     __ __ ~
-~|  _ \| ____|  _ \| ____/ ___|        / \ \   / //_ |~
-~| |_) |  _| | | | |  _| \___ \ _____ / _ \ \ / /  | |~
-~|  _ <| |___| |_| | |___ ___) |_____/ ___ \ V /   | |~
-~|_| \_\_____|____/|_____|____/     /_/   \_\_/    |_|~
-~                                                     ~
-~              Eloy , Martin , Davor                  ~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~  ____  _____ ____   _____ ____           __ ___      ___ ___     ~
+~ |  _ \ | ____|  _ \| ____/  __|         /  \   \    /  //_  |    ~
+~ | |_) || |_  | | | | |_  | |__  _____  / /\ \   \  /  /   | |    ~             
+~ |  _ < |  _| | | | |  _| \___ \ \___/ / /__\ \   \/  /    | |    ~
+~ | | | || |___| |_| | |___ ___) |     /  ___   \     /    _| |_   ~
+~ |_| \_|\_____|____/|_____|____/     /__/   \___\___/    |_____|  ~
+~                      - Redes Avanzadas 1 -                       ~
+~                                                                  ~
+~                    - Eloy , Martin , Davor -                     ~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """)
-
-
 
 # Sesión predefinida 
 def sesion():
@@ -65,18 +61,13 @@ def sesion():
         "martin": "martin",
         "administrador": "administrador"
     }
-    
     while True:
         print("\nInicio de sesión")
         usuario = input("Escriba nombre del usuario: ").strip()
         if usuario in usuarios:
             contrasena = input("Escriba la contraseña: ").strip()
-           
             if contrasena == usuarios[usuario]:
-           
-                os.system("cls" if os.name == "nt" else "clear")
-           
-                print("✅ Bienvenido " + usuario + " !!!"+"  ƪ(°⌣°)ʃ ")
+                print("✅ Bienvenido " + usuario)
                 registrar_evento(usuario, "INICIO_SESION_EXITOSO")
                 return usuario
             else:
@@ -93,39 +84,33 @@ def validar_ip(ip):
                         r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
                         r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
     return patron.match(ip)
-
-#validacion de la mascara 
-def validar_mascara(mascara):
-    patron = re.compile(r"^(255|254|252|248|240|224|192|128|0)\."
-                        r"(255|254|252|248|240|224|192|128|0)\."
-                        r"(255|254|252|248|240|224|192|128|0)\."
-                        r"(255|254|252|248|240|224|192|128|0)$")
-    return patron.match(mascara)
-
-#ELOY MODIFICACION ---------------------------------------------------------------------------------+
-
 # yo kcho que esta wa hay que borrarla , puro cacho
-# Comprobar si IP está en rango privado válido , los deje como comentario para no borrar pero que no se ejecuten
-
+# Comprobar si IP está en rango privado válido
 def ip_en_rango(ip):
+    rangos_validos = [
+        ipaddress.ip_network('192.168.0.0/16'),
+        ipaddress.ip_network('10.0.0.0/8'),
+        ipaddress.ip_network('172.16.0.0/12')
+    ]
     try:
-        ip_obj = ipaddress.IPv4Address(ip)
-        # Solo permite IPs desde 1.0.0.0 hasta 223.255.255.255 (clase A, B, C)
-        return ip_obj >= ipaddress.IPv4Address("1.0.0.0") and ip_obj <= ipaddress.IPv4Address("223.255.255.255")
+        ip_obj = ipaddress.ip_address(ip)
+        return any(ip_obj in rango for rango in rangos_validos)
     except ValueError:
         return False
-#---------------------------------------------------------------------------------+
 
 # Mostrar menú
 def mostrar_menu():
-    print(" \n📋 MENÚ PRINCIPAL          |")
-    print("| 1. Ver dispositivos      |")
-    print("| 2. Ver campus            |")
-    print("| 3. Añadir dispositivo    |")
-    print("| 4. Añadir campus         |")
-    print("| 5. Salir                 |")
-    print("| 6. Eliminar dispositivo  |")
-
+    print('''
++-------------------------+
+| 📋 MENÚ PRINCIPAL       |
+| 1. Ver dispositivos     |
+| 2. Ver campus           |
+| 3. Añadir dispositivo   |
+| 4. Añadir campus        |
+| 5. Salir                |
+| 6. Eliminar dispositivo |
++-------------------------+
+          ''')
 
 # Ver dispositivos por campus
 def ver_dispositivos(campus, usuario_actual):
@@ -176,28 +161,22 @@ def añadir_dispositivo(campus, usuario_actual):
             break
         print("❌ IP inválida o fuera de rango permitido.")
 
-    mascara = input("mascara: ").strip()
     vlans = input("VLAN(s): ").strip()
     servicios = input("Servicios: ").strip()
     capa = input("Capa: ").strip()
-#ELOY MODIFICACION ---------------------------------------------------------------------------------+
+
     # Registrar en archivo
     with open(f"{campus[opcion]}.txt", "a") as archivo:
         archivo.write("\n" + "-"*30 + "\n")
         archivo.write(f"Dispositivo: {dispositivo}\n")
         archivo.write(f"Nombre: {nombre}\n")
         archivo.write(f"IP: {direccion_ip}\n")
-        #------------
-        archivo.write(f"mascara: {mascara}\n")
-        #------------
         archivo.write(f"VLAN(s): {vlans}\n")
         archivo.write(f"Servicios: {servicios}\n")
         archivo.write(f"Capa: {capa}\n")
         archivo.write("-"*30 + "\n")
 
-#ELOY MODIFICACION ---------------------------------------------------------------------------------+
-
-        # registrando eventos
+    # registrando eventos
     registrar_evento(
         usuario_actual,
         "DISPOSITIVO_AGREGADO",
@@ -284,9 +263,9 @@ def main():
         elif opcion == "5":
             registrar_evento(usuario_actual, "SESION_CERRADA")
             print("👋 Hasta luego.")
-            break
         elif opcion == "6":
             eliminar_dispositivo(campus, usuario_actual)
+
             break
         else:
             print("❌ Opción inválida.")
@@ -295,4 +274,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-   #ahora cierraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa xd
+
+    #profe sadro rajese con un 7 porfa UWU
+
