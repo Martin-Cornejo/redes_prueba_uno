@@ -1,4 +1,3 @@
-
 -----------------------------
 Dispositivo: Router
 Nombre: R1
@@ -7,3 +6,21 @@ VLAN(s): 1, 2, 3
 Servicios: ENRUTAMIENTO
 Capa: DISTRIBUCION
 -----------------------------
+------------------------------
+Dispositivo: 1
+Nombre: 1
+IP: 3.3.3.3
+mascara: 33.3.3.3
+VLAN(s): 3.
+Servicios: 3.
+Capa: 3
+
+------------------------------
+Dispositivo: 2222
+Nombre: 222
+IP: 2.22.2.2
+mascara: 2
+VLAN(s): 2
+Servicios: 2
+Capa: 2
+------------------------------
