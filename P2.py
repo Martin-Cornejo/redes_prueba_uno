@@ -65,11 +65,7 @@ def sesion():
         "martin": "martin",
         "administrador": "administrador"
     }
-    MAX_INTENTOS = 3
-if intentos >= MAX_INTENTOS:
-    print("🔒 Demasiados intentos. Cuenta bloqueada temporalmente.")
-    registrar_evento(usuario, "BLOQUEO_POR_INTENTOS")
-    time.sleep(60)  # Bloqueo temporal
+    
     while True:
         print("\nInicio de sesión")
         usuario = input("Escriba nombre del usuario: ").strip()
