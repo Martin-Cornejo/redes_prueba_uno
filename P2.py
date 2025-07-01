@@ -879,15 +879,14 @@ def menu_principal():
 
     while True:
         print("""
-+-----------------------------+
-| 🚀 MENÚ PRINCIPAL            |
-| [1] Configuración Global     |
-| [2] Configuración de         |
-|     Interfaces               |
-| [3] Mostrar Configuración    |
-| [4] Administración           |
-| [5] Salir                    |
-+-----------------------------+
++---------------------------------+
+| 💻 MENu PRINCIPAL               |
+| [1] Configuración Global        |
+| [2] Configuracion de Interfaces |
+| [3] Mostrar Configuración       |
+| [4] Administración              |
+| [5] Salir                       |
++---------------------------------+
 """)
         opcion = input("Seleccione una opcion: ").strip()
         
