@@ -17,18 +17,21 @@ YELLOW = "\033[93m"
 RESET = "\033[0m"
 
 ascii_art = f"""
-{RED}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{RESET}
-{RED}~{WHITE}  ____  _____ ____   _____ ____           __ ___      ___ ___     {RED}~{RESET}
-{RED}~{WHITE} |  _ \ | ____|  _ \| ____/  __|         /  \   \    /  //_  |    {RED}~{RESET}
-{RED}~{WHITE} | |_) || |_  | | | | |_  | |__  _____  / /\ \   \  /  /   | |    {RED}~{RESET}
-{RED}~{WHITE} |  _ < |  _| | | | |  _| \___ \ \___/ / /__\ \   \/  /    | |    {RED}~{RESET}
-{RED}~{WHITE} | | | || |___| |_| | |___ ___) |     /  ___   \     /    _| |_   {RED}~{RESET}
-{RED}~{WHITE} |_| \_|\_____|____/|_____|____/     /__/   \___\___/    |_____|  {RED}~{RESET}
-{RED}~{WHITE}                                                                  {RED}~{RESET}
-{RED}~{YELLOW}                      - Redes Avanzadas 1 -                       {RED}~{RESET}
-{RED}~{WHITE}                                                                  {RED}~{RESET}
-{RED}~{YELLOW}                    - Eloy , Martin , Davor -                     {RED}~{RESET}
-{RED}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{RESET}
+{RED}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{RESET}
+{RED}|{WHITE}                                                                   {RED}|{RESET}
+{RED}|{WHITE}  ____  _____ ____   _____ ____           __  ____      ___ ___    {RED}|{RESET}
+{RED}|{WHITE} |  _ \ | ____|  _ \| ____/  __|         /  \ \   \    /  //_  |   {RED}|{RESET}
+{RED}|{WHITE} | |_) || |_  | | | | |_  | |__  _____  / /\ \ \   \  /  /   | |   {RED}|{RESET}
+{RED}|{WHITE} |  _ < |  _| | | | |  _| \___ \ \___/ / /__\ \ \   \/  /    | |   {RED}|{RESET}
+{RED}|{WHITE} | | | || |___| |_| | |___ ___) |     /  ___   \ \     /    _| |_  {RED}|{RESET}
+{RED}|{WHITE} |_| \_|\_____|____/|_____|____/     /__/   \___\ \___/    |_____| {RED}|{RESET}
+{RED}|{WHITE}  -.-.-.-.-.-.-.-.-.-.-.-.-.-.-     -.-.-.-.-.-.-.-.-.-.-.-.-.-.-  {RED}|{RESET}
+{RED}|{WHITE}                                                                   {RED}|{RESET}
+{RED}|{YELLOW}                       - Redes Avanzadas 1 -                       {RED}|{RESET}
+{RED}|{WHITE}                                                                   {RED}|{RESET}
+{RED}|{YELLOW}                     - Eloy , Martin , Davor -                     {RED}|{RESET}
+{RED}|{WHITE}                                                                   {RED}|{RESET}
+{RED}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{RESET}
 """
 
 print(ascii_art)
@@ -41,7 +44,7 @@ IP_ROUTER = "192.168.56.104"
 USUARIO_ROUTER = "cisco"
 CONTRASENA_ROUTER = "cisco123!"
 
-# Deshabilitar advertencias SSL
+# Deshabilita las credenciales SSL
 urllib3.disable_warnings()
 
 # ==============================================
@@ -57,7 +60,10 @@ def iniciar_registro():
                 escritor.writerow(["Fecha", "Hora", "Usuario", "Acción", "Detalles"])
                 archivo.close()
         except Exception as e:
-            print(f"⚠ Error al crear archivo de registro: {e}")
+            print(f"😭 Error al crear archivo de registro: {e}")
+
+#aqui se registran los eventos en un archivo CSV
+#se usa para registrar los eventos importantes durante la sesion
 
 def registrar_evento(usuario, accion, detalles=""):
     """Registra un evento en el archivo CSV"""
@@ -73,7 +79,9 @@ def registrar_evento(usuario, accion, detalles=""):
             ])
             archivo.close()
     except Exception as e:
-        print(f"⚠ Error en registro: {e}")
+
+
+        print(f"( ˘︹˘ ) Error en registro: {e}")
 
 def guardar_configuracion_en_json(datos, prefijo="backup"):
     """Guarda configuración en archivo JSON"""
@@ -83,22 +91,24 @@ def guardar_configuracion_en_json(datos, prefijo="backup"):
         with open(nombre_archivo, "w", encoding="utf-8") as archivo:
             json.dump(datos, archivo, indent=4)
             archivo.close()
-        print(f"📁 Configuración guardada en '{nombre_archivo}'")
+        print(f" ConfiguraciOn guardada en '{nombre_archivo}'")
     except Exception as e:
-        print(f"❌ Error al guardar configuración: {e}")
+        print(f" Error al guardar configuraciOn: {e}")
 
 # ==============================================
 # Funciones de Validación
 # ==============================================
 
+#ipv4
 def validar_ip(ip):
-    """Valida una dirección IPv4"""
     try:
         ipaddress.IPv4Address(ip)
         return True
     except ValueError:
         return False
 
+
+#ipv6
 def validar_ipv6(ip):
     """Valida una dirección IPv6"""
     try:
@@ -107,8 +117,10 @@ def validar_ipv6(ip):
     except ValueError:
         return False
 
+# ==============================================
+# Funcion para validar Máscaras
+
 def validar_mascara(mascara):
-    """Valida y convierte máscara de subred a formato correcto"""
     try:
         # Verificar si ya está en formato CIDR (ej: "24")
         if mascara.isdigit() and 0 <= int(mascara) <= 32:
@@ -173,7 +185,7 @@ def obtener_ips_asignadas():
     return ips_asignadas
 
 # ==============================================
-# Funciones de Configuración del Router
+# Funciones de Config del Router
 # ==============================================
 
 def activar_interfaz(interfaz, usuario_actual, activar=True):
@@ -229,7 +241,9 @@ def configurar_ip_interfaz(interfaz, usuario_actual):
     while True:
         tipo_ip = input("¿Configurar IPv4 (1) o IPv6 (2)? ").strip()
         if tipo_ip not in ["1", "2"]:
-            print("❌ Opción no válida. Ingrese 1 para IPv4 o 2 para IPv6")
+            os.system('cls' if os.name == 'nt' else 'clear')
+
+            print("❌ Opcion invalida. Ingrese 1 para IPv4 o 2 para IPv6")
             continue
         break
     
@@ -437,7 +451,7 @@ def configurar_banner(banner, usuario_actual):
         print(f"❌ Error en RESTCONF: {e}")
 
 # ==============================================
-# Funciones de Visualización
+# Funciones de Visualizacin
 # ==============================================
 
 def listar_interfaces(usuario_actual):
@@ -466,7 +480,7 @@ def listar_interfaces(usuario_actual):
             print("\n🔹 GigabitEthernet:")
             for giga in gigas:
                 name = giga.get("name", "Desconocido")
-                desc = giga.get("description", "Sin descripción")
+                desc = giga.get("description", "Sin descripcion")
                 ip_info = giga.get("ip", {}).get("address", {}).get("primary", {})
                 ip = ip_info.get("address", "No configurada")
                 mask = ip_info.get("mask", "")
@@ -625,7 +639,7 @@ def mostrar_configuracion_actual(usuario_actual):
         registrar_evento(usuario_actual, "ERROR_CONEXION", str(e))
 
 # ==============================================
-# Funciones de Administración
+# Funcion de Administracion
 # ==============================================
 
 def guardar_configuracion(usuario_actual):
@@ -675,7 +689,7 @@ def mostrar_registros(usuario_actual):
         print(f"❌ Error al leer registros: {e}")
 
 # ==============================================
-# Menús del Sistema
+# Menus del Sistema
 # ==============================================
 
 def menu_configurar_interfaz(interfaz, usuario):
@@ -687,7 +701,7 @@ def menu_configurar_interfaz(interfaz, usuario):
 [2] Configurar Descripción
 [3] Volver al menú anterior
 """)
-        opcion = input("Seleccione una opción: ").strip()
+        opcion = input("Seleccione una opcion: ").strip()
         
         if opcion == "1":
             configurar_ip_interfaz(interfaz, usuario)
@@ -696,7 +710,14 @@ def menu_configurar_interfaz(interfaz, usuario):
         elif opcion == "3":
             break
         else:
-            print("❌ Opción no válida")
+            os.system('cls' if os.name == 'nt' else 'clear')
+
+            print("❌ Opcion invalida")
+
+
+# ==============================================
+
+# submenu configuracion global
 
 def menu_configuracion_global(usuario):
     """Menú de configuración global"""
@@ -707,7 +728,7 @@ def menu_configuracion_global(usuario):
 [2] Configurar Banner
 [3] Volver al menú principal
 """)
-        opcion = input("Seleccione una opción: ").strip()
+        opcion = input("Seleccione una opcion: ").strip()
         
         if opcion == "1":
             nuevo_hostname = input("Nuevo hostname: ").strip()
@@ -718,7 +739,10 @@ def menu_configuracion_global(usuario):
         elif opcion == "3":
             break
         else:
-            print("❌ Opción no válida")
+            print("❌ Opcion invalida")
+
+# ==============================================
+# submenu configuracion de las int
 
 def menu_configuracion_interfaces(usuario):
     """Menú de configuración de interfaces"""
@@ -730,7 +754,7 @@ def menu_configuracion_interfaces(usuario):
 [3] Activar/Desactivar Interface
 [4] Volver al menú principal
 """)
-        opcion = input("Seleccione una opción: ").strip()
+        opcion = input("Seleccione una opcion: ").strip()
         
         if opcion == "1":
             listar_interfaces(usuario)
@@ -759,23 +783,26 @@ def menu_configuracion_interfaces(usuario):
                     activar_interfaz(interfaz, usuario, activar=False)
                     break
                 else:
-                    print("❌ Opción no válida. Ingrese 1 para Activar o 2 para Desactivar")
+                    print("❌ Opcion invalida. Ingrese 1 para Activar o 2 para Desactivar")
         elif opcion == "4":
             break
         else:
-            print("❌ Opción no válida")
+            os.system('cls' if os.name == 'nt' else 'clear')
+
+            print("❌ Opcion invalida")
+# ==============================================
+#submenu mostrar config
 
 def menu_mostrar_configuracion(usuario):
-    """Menú para mostrar configuraciones"""
     while True:
         print("""
---- Mostrar Configuración ---
-[1] Mostrar Configuración Completa
+--- Mostrar Configuracion ---
+[1] Mostrar Configuracion Completa
 [2] Mostrar Resumen de Interfaces
-[3] Mostrar Configuración Actual
-[4] Volver al menú principal
+[3] Mostrar Configuracion Actual
+[4] Volver al menu principal
 """)
-        opcion = input("Seleccione una opción: ").strip()
+        opcion = input("Seleccione una opcion: ").strip()
         
         if opcion == "1":
             mostrar_configuracion_completa(usuario)
@@ -786,14 +813,19 @@ def menu_mostrar_configuracion(usuario):
         elif opcion == "4":
             break
         else:
-            print("❌ Opción no válida")
+            os.system('cls' if os.name == 'nt' else 'clear')
 
+            print("❌ Opcion invalida")
+
+
+#submenu de administracion
+# sirve para que el usuario guarde la configuracion actual y para mostrar los registros del sistema
 def menu_administracion(usuario):
-    """Menú de administración"""
+    
     while True:
         print("""
 --- Administración ---
-[1] Guardar Configuración
+[1] Guardar Configuracion
 [2] Mostrar Registros del Sistema
 [3] Volver al menú principal
 """)
@@ -806,28 +838,42 @@ def menu_administracion(usuario):
         elif opcion == "3":
             break
         else:
-            print("❌ Opción no válida")
+            print("❌ Opcion invalida")
+# ==============================================
+
+#  Autenticacion        clave y contra : admin
 
 def sesion():
-    """Maneja la autenticación de usuarios"""
-    print("\nInicio de sesión - Solo admin autorizado")
+    print("\nInicio de sesión - Solo usuarios autorizados")
     while True:
         usuario = input("Nombre de usuario: ").strip()
         if usuario == "admin":
             contrasena = input("Contraseña: ").strip()
-            if contrasena == "admin123":
-                print("✅ Bienvenido admin")
+            if contrasena == "admin":
+                print("✅ Bienvenido Administrador   ;) ")
                 registrar_evento(usuario, "INICIO_SESION_EXITOSO")
                 return usuario
             else:
-                print("❌ Contraseña incorrecta")
+                os.system('cls' if os.name == 'nt' else 'clear')
+                print(ascii_art)
+
+                print("ƪ(˘⌣˘)ʃ Contraseña incorrecta , intente de nuevo")
+                print(" ")
                 registrar_evento(usuario, "INTENTO_FALLIDO", "Contraseña incorrecta")
+                print(" ")
         else:
-            print("❌ Acceso denegado. Solo se permite el usuario 'admin'")
+            print(" ")
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print(ascii_art)
+            print("❌ Acceso denegado. Solo se permite acceso al ''ADMINISTRADOR'' ")
+            print(" ")
             registrar_evento("DESCONOCIDO", "INTENTO_USUARIO", f"Intento de acceso con usuario: {usuario}")
 
+# ==============================================
+#menu pincipla
+
 def menu_principal():
-    """Menú principal del sistema"""
+
     iniciar_registro()
     usuario_actual = sesion()
 
@@ -843,7 +889,7 @@ def menu_principal():
 | [5] Salir                    |
 +-----------------------------+
 """)
-        opcion = input("Seleccione una opción: ").strip()
+        opcion = input("Seleccione una opcion: ").strip()
         
         if opcion == "1":
             menu_configuracion_global(usuario_actual)
@@ -858,7 +904,9 @@ def menu_principal():
             print("👋 Sesión finalizada. Hasta pronto.")
             break
         else:
-            print("❌ Opción no válida")
+            os.system('cls' if os.name == 'nt' else 'clear')
+
+            print("❌ Opcion invalida")
 
 # ==============================================
 # Inicio del Programa
